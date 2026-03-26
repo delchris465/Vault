@@ -239,6 +239,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (emailOrUsername: string, password: string) => {
+    if (currentUser) {
+      try { await authApi.logout(); } catch {}
+      removeToken();
+    }
     const { token, user } = await authApi.login(emailOrUsername, password);
     setToken(token);
     setCurrentUser(user);

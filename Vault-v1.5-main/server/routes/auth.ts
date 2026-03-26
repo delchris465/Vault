@@ -57,7 +57,7 @@ router.post('/login', async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       `SELECT id, username, email, password_hash, profile_pic_url, profile_banner, bio, name_color, coins, xp, level, streak, last_login_date, is_admin, is_owner
-       FROM users WHERE email = $1 OR username = $1`,
+       FROM users WHERE email = $1 OR LOWER(username) = $1`,
       [emailOrUsername.toLowerCase()]
     );
     if (result.rowCount === 0) {
