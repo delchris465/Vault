@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profile.js';
@@ -10,7 +11,8 @@ import progressRoutes from './routes/progress.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const PORT = process.env.API_PORT || 3001;
+const isProd = process.env.NODE_ENV === 'production';
+const PORT = process.env.PORT || (isProd ? 5000 : 3001);
 
 app.use(cors({
   origin: true,
@@ -29,6 +31,14 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+if (isProd) {
+  const distPath = path.join(__dirname, '..', 'dist');
+  app.use(express.static(distPath));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 app.listen(PORT, () => {
-  console.log(`API server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT} (${isProd ? 'production' : 'development'})`);
 });

@@ -52,3 +52,8 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "cd Vault-v1.5-main && NODE_ENV=production npx tsx server/index.ts"]
+build = ["bash", "-c", "cd Vault-v1.5-main && npm run build"]
