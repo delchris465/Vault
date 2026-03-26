@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { GameCard } from './components/GameCard';
 import { GamePlayer } from './components/GamePlayer';
 import { StorePage, QuestsPage, AchievementsPage, ProfilePage, RoadmapPage, DailyRewardsPage, SettingsPage } from './components/FeaturePages';
+import { SocialPage } from './components/SocialPage';
 import { StreakPopup } from './components/StreakPopup';
 import { AuthModal } from './components/AuthModal';
 import { useGameContext } from './context/GameContext';
@@ -15,7 +16,7 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function App() {
   const { state, playGame } = useGameContext();
   const { t } = useLanguage();
-  const [currentView, setCurrentView] = useState<'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings'>('games');
+  const [currentView, setCurrentView] = useState<'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings' | 'social'>('games');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -180,6 +181,7 @@ export default function App() {
           {currentView === 'roadmap' && <RoadmapPage />}
           {currentView === 'daily-rewards' && <DailyRewardsPage />}
           {currentView === 'settings' && <SettingsPage />}
+          {currentView === 'social' && <SocialPage />}
         </div>
       </main>
 

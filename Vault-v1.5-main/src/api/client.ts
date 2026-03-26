@@ -101,6 +101,48 @@ export const profileApi = {
     api.put<{ success: boolean }>('/profile/game-state', data),
 };
 
+export const socialApi = {
+  search: (q: string) => api.get<{ users: UserProfile[] }>(`/social/search?q=${encodeURIComponent(q)}`),
+  getFriends: () => api.get<{ friendships: FriendshipRow[] }>('/social/friends'),
+  sendRequest: (addresseeId: number) => api.post<{ friendship: FriendshipRow }>('/social/request', { addresseeId }),
+  respondToRequest: (id: number, action: 'accept' | 'decline' | 'remove') =>
+    api.put<{ friendship?: FriendshipRow; success?: boolean }>(`/social/request/${id}`, { action }),
+};
+
+export const chatApi = {
+  getGlobal: () => api.get<{ messages: ChatMessage[] }>('/chat/global'),
+  sendGlobal: (message: string) => api.post<{ message: ChatMessage }>('/chat/global', { message }),
+  getDM: (friendId: number) => api.get<{ messages: ChatMessage[] }>(`/chat/dm/${friendId}`),
+  sendDM: (friendId: number, message: string) => api.post<{ message: ChatMessage }>(`/chat/dm/${friendId}`, { message }),
+  getUnread: () => api.get<{ unread: { sender_id: number; count: number }[] }>('/chat/unread'),
+};
+
+export interface ChatMessage {
+  id: number;
+  user_id?: number;
+  sender_id?: number;
+  receiver_id?: number;
+  username?: string;
+  sender_username?: string;
+  name_color?: string;
+  sender_color?: string;
+  message: string;
+  created_at: string;
+  is_read?: boolean;
+}
+
+export interface FriendshipRow {
+  friendship_id: number;
+  status: 'pending' | 'accepted' | 'declined';
+  requester_id: number;
+  addressee_id: number;
+  friend_id: number;
+  friend_username: string;
+  friend_pic: string | null;
+  friend_color: string;
+  friend_level: number;
+}
+
 export const progressApi = {
   get: (gameId: string) =>
     api.get<{ progress: Record<string, unknown> | null; playtime_seconds?: number }>(`/progress/${gameId}`),

@@ -1,10 +1,10 @@
-import { Gamepad2, Swords, Puzzle, Trophy, Users, MonitorPlay, Box, MousePointerClick, Store, Target, User, Map, Library, Settings, LogIn, LogOut, Car, Sparkles, Smile, ChefHat } from 'lucide-react';
+import { Gamepad2, Swords, Puzzle, Trophy, Users, MonitorPlay, Box, MousePointerClick, Store, Target, User, Map, Library, Settings, LogIn, LogOut, Car, Sparkles, Smile, ChefHat, MessageCircle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useGameContext } from '../context/GameContext';
 
 interface SidebarProps {
-  currentView: 'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings';
-  onSelectView: (view: 'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings') => void;
+  currentView: 'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings' | 'social';
+  onSelectView: (view: 'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings' | 'social') => void;
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
   onGoHome: () => void;
@@ -18,6 +18,7 @@ const MAIN_VIEWS = [
   { id: 'achievements', nameKey: 'nav.achievements', icon: Trophy, color: 'text-yellow-400', bg: 'bg-yellow-600/20' },
   { id: 'store', nameKey: 'nav.store', icon: Store, color: 'text-fuchsia-400', bg: 'bg-fuchsia-600/20' },
   { id: 'profile', nameKey: 'nav.profile', icon: User, color: 'text-blue-400', bg: 'bg-blue-600/20' },
+  { id: 'social', nameKey: 'nav.social', icon: MessageCircle, color: 'text-cyan-400', bg: 'bg-cyan-600/20' },
   { id: 'settings', nameKey: 'nav.settings', icon: Settings, color: 'text-gray-400', bg: 'bg-gray-600/20' },
 ] as const;
 
