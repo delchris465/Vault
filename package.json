@@ -1,0 +1,9 @@
+{
+  "name": "vault-gaming-platform",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "cd Vault-v1.5-main && npm install && npm run build",
+    "start": "cd Vault-v1.5-main && NODE_ENV=production npx tsx server/index.ts"
+  }
+}
