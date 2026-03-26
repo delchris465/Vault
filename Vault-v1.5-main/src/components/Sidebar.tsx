@@ -3,8 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useGameContext } from '../context/GameContext';
 
 interface SidebarProps {
-  currentView: 'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings' | 'social';
-  onSelectView: (view: 'games' | 'store' | 'quests' | 'achievements' | 'profile' | 'roadmap' | 'daily-rewards' | 'settings' | 'social') => void;
+  currentView: string;
+  onSelectView: (view: string) => void;
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
   onGoHome: () => void;
@@ -134,7 +134,7 @@ export function Sidebar({ currentView, onSelectView, selectedCategory, onSelectC
         </div>
       </nav>
       
-      <div className="p-6 border-t border-white/5 space-y-4">
+      <div className="p-4 border-t border-white/5 space-y-3">
         {state.authMode !== 'none' && (
           <button
             onClick={() => logout()}
@@ -144,9 +144,14 @@ export function Sidebar({ currentView, onSelectView, selectedCategory, onSelectC
             Log Out
           </button>
         )}
-        <div className="bg-white/5 rounded-xl p-4 text-sm text-gray-400">
+        <div className="bg-white/5 rounded-xl p-3 text-sm text-gray-400">
           <p className="font-medium text-white mb-1">{t('footer.title')}</p>
-          <p className="text-xs">{t('footer.desc')}</p>
+          <p className="text-xs mb-3">{t('footer.desc')}</p>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+            <button onClick={() => onSelectView('about')} className="text-gray-500 hover:text-violet-400 transition-colors">About</button>
+            <button onClick={() => onSelectView('privacy')} className="text-gray-500 hover:text-violet-400 transition-colors">Privacy Policy</button>
+            <button onClick={() => onSelectView('terms')} className="text-gray-500 hover:text-violet-400 transition-colors">Terms of Service</button>
+          </div>
         </div>
       </div>
     </aside>
