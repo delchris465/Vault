@@ -113,7 +113,7 @@ router.put('/preferences', requireAuth, async (req: AuthRequest, res: Response) 
 });
 
 router.put('/game-state', requireAuth, async (req: AuthRequest, res: Response) => {
-  const { coins, xp, level, streak } = req.body;
+  const { coins, xp, level, streak, progressJson } = req.body;
   try {
     const updates: string[] = [];
     const values: any[] = [];
@@ -122,6 +122,7 @@ router.put('/game-state', requireAuth, async (req: AuthRequest, res: Response) =
     if (xp !== undefined) { updates.push(`xp = $${i++}`); values.push(xp); }
     if (level !== undefined) { updates.push(`level = $${i++}`); values.push(level); }
     if (streak !== undefined) { updates.push(`streak = $${i++}`); values.push(streak); }
+    if (progressJson !== undefined) { updates.push(`progress_json = $${i++}`); values.push(JSON.stringify(progressJson)); }
     if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
     updates.push(`updated_at = NOW()`);
     values.push(req.userId);

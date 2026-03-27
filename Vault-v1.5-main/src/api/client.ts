@@ -57,6 +57,7 @@ export interface UserProfile {
   is_admin: boolean;
   is_owner: boolean;
   created_at: string;
+  progress_json?: Record<string, unknown> | null;
   language?: string;
   notifications_enabled?: boolean;
   sound_enabled?: boolean;
@@ -97,8 +98,11 @@ export const profileApi = {
   updatePreferences: (prefs: Record<string, unknown>) =>
     api.put<{ preferences: Record<string, unknown> }>('/profile/preferences', prefs),
 
-  syncGameState: (data: { coins?: number; xp?: number; level?: number; streak?: number }) =>
+  syncGameState: (data: { coins?: number; xp?: number; level?: number; streak?: number; progressJson?: Record<string, unknown> }) =>
     api.put<{ success: boolean }>('/profile/game-state', data),
+
+  getPublicProfile: (userId: number) =>
+    api.get<{ user: UserProfile }>(`/social/profile/${userId}`),
 };
 
 export const socialApi = {

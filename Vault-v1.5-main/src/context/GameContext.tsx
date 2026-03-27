@@ -176,9 +176,41 @@ function fillDefaults(merged: GameState): GameState {
   return merged;
 }
 
-function stateFromUser(user: UserProfile, existing: GameState): GameState {
-  return fillDefaults(applyDailyLoginLogic({
-    ...existing,
+function progressFromState(s: GameState): Record<string, unknown> {
+  return {
+    gamesPlayedToday: s.gamesPlayedToday,
+    totalGamesPlayed: s.totalGamesPlayed,
+    sportsGamesPlayed: s.sportsGamesPlayed,
+    actionGamesPlayed: s.actionGamesPlayed,
+    puzzleGamesPlayed: s.puzzleGamesPlayed,
+    clickerGamesPlayed: s.clickerGamesPlayed,
+    ioGamesPlayed: s.ioGamesPlayed,
+    classicsGamesPlayed: s.classicsGamesPlayed,
+    papasGamesPlayed: s.papasGamesPlayed,
+    racingGamesPlayed: s.racingGamesPlayed,
+    sandboxGamesPlayed: s.sandboxGamesPlayed,
+    asmrGamesPlayed: s.asmrGamesPlayed,
+    weeklyGamesPlayed: s.weeklyGamesPlayed,
+    lastWeekReset: s.lastWeekReset,
+    inventory: s.inventory,
+    skins: s.skins,
+    activeSkins: s.activeSkins,
+    claimedQuests: s.claimedQuests,
+    claimedWeeklyQuests: s.claimedWeeklyQuests,
+    unlockedAchievements: s.unlockedAchievements,
+    claimedAchievements: s.claimedAchievements,
+    lastDailyReward: s.lastDailyReward,
+    claimedLevelRewards: s.claimedLevelRewards,
+    prestige: s.prestige,
+    lastLogin: s.lastLogin,
+  };
+}
+
+function stateFromUser(user: UserProfile): GameState {
+  const saved = (user.progress_json as Partial<GameState>) || {};
+  const base: GameState = {
+    ...defaultState,
+    ...saved,
     coins: user.coins,
     xp: user.xp,
     level: user.level,
@@ -190,7 +222,8 @@ function stateFromUser(user: UserProfile, existing: GameState): GameState {
     isAdmin: user.is_admin,
     isOwner: user.is_owner,
     authMode: 'logged_in',
-  }));
+  };
+  return fillDefaults(applyDailyLoginLogic(base));
 }
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
@@ -221,6 +254,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           xp: state.xp,
           level: state.level,
           streak: state.streak,
+          progressJson: progressFromState(state),
         }).catch(() => {});
       }, 3000);
     }
@@ -231,7 +265,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (token) {
       authApi.me().then(({ user }) => {
         setCurrentUser(user);
-        setState(prev => stateFromUser(user, prev));
+        setState(stateFromUser(user));
       }).catch(() => {
         removeToken();
       });
@@ -246,21 +280,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const { token, user } = await authApi.login(emailOrUsername, password);
     setToken(token);
     setCurrentUser(user);
-    setState(prev => stateFromUser(user, prev));
+    setState(stateFromUser(user));
   };
 
   const register = async (username: string, email: string, password: string) => {
     const { token, user } = await authApi.register(username, email, password);
     setToken(token);
     setCurrentUser(user);
-    setState(prev => stateFromUser(user, prev));
+    setState(stateFromUser(user));
   };
 
   const logout = async () => {
     try { await authApi.logout(); } catch {}
     removeToken();
     setCurrentUser(null);
-    setState(prev => ({ ...prev, authMode: 'none' }));
+    localStorage.removeItem('portalGameState');
+    setState({ ...defaultState });
   };
 
   const getMultiplier = () => Math.min(2.5, 1 + (state.streak - 1) * 0.1);

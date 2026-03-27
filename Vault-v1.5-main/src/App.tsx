@@ -148,10 +148,7 @@ export default function App() {
                         <GameCard 
                           key={game.id} 
                           game={game} 
-                          onClick={(g) => {
-                            setSelectedGame(g);
-                            playGame(g.category);
-                          }} 
+                          onClick={(g) => setSelectedGame(g)} 
                         />
                       ))}
                     </AnimatePresence>
@@ -194,7 +191,8 @@ export default function App() {
         {selectedGame && (
           <GamePlayer 
             game={selectedGame} 
-            onClose={() => setSelectedGame(null)} 
+            onClose={() => setSelectedGame(null)}
+            onPlay={() => playGame(selectedGame.category)}
           />
         )}
       </AnimatePresence>

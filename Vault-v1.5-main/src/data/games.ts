@@ -31,7 +31,7 @@ export const games: Game[] = [
   { id: '2048', title: '2048', category: 'Puzzle', thumbnail: '', embedUrl: 'native:Game2048' },
   { id: 'little-alchemy-2', title: 'Little Alchemy 2', category: 'Puzzle', thumbnail: '', embedUrl: 'https://littlealchemy2.com/' },
   { id: 'draw-climber', title: 'Draw Climber', category: 'Puzzle', thumbnail: '', embedUrl: 'https://drawclimber.io/' },
-  { id: 'stack-rush', title: 'Stack Rush', category: 'Puzzle', thumbnail: '', embedUrl: 'https://www.gameflare.com/embed/stack-rush/' },
+  { id: 'stack-rush', title: 'Stack Rush', category: 'Puzzle', thumbnail: '', embedUrl: 'https://html5.gamedistribution.com/rvvASMiM7q7e67VoqnRRFE0KCWzAmhRE/' },
 
   // Sports
   { id: 'basket-random', title: 'Basket Random', category: 'Sports', thumbnail: '', embedUrl: 'https://files.twoplayergames.org/files/games/other/Basket_Random/index.html' },

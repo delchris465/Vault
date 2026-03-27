@@ -105,7 +105,7 @@ router.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(
       `SELECT u.id, u.username, u.email, u.profile_pic_url, u.profile_banner, u.bio, u.name_color,
-              u.coins, u.xp, u.level, u.streak, u.is_admin, u.is_owner, u.created_at,
+              u.coins, u.xp, u.level, u.streak, u.is_admin, u.is_owner, u.created_at, u.progress_json,
               p.language, p.notifications_enabled, p.sound_enabled, p.music_enabled, p.theme, p.extras
        FROM users u
        LEFT JOIN user_preferences p ON p.user_id = u.id

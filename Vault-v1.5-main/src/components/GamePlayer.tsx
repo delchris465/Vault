@@ -1,6 +1,6 @@
 import { X, Maximize, ExternalLink, Loader2 } from 'lucide-react';
 import { Game } from '../data/games';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
 import { TicTacToe } from '../games/TicTacToe';
@@ -13,18 +13,34 @@ import { SnakeGame } from '../games/SnakeGame';
 interface GamePlayerProps {
   game: Game;
   onClose: () => void;
+  onPlay: () => void;
 }
 
-export function GamePlayer({ game, onClose }: GamePlayerProps) {
+const PLAY_THRESHOLD_MS = 30_000;
+
+export function GamePlayer({ game, onClose, onPlay }: GamePlayerProps) {
   const { t } = useLanguage();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const playedRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    timerRef.current = setTimeout(() => {
+      if (!playedRef.current) {
+        playedRef.current = true;
+        onPlay();
+      }
+    }, PLAY_THRESHOLD_MS);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const toggleFullscreen = () => {
-    if (iframeRef.current) {
-      if (iframeRef.current.requestFullscreen) {
-        iframeRef.current.requestFullscreen();
-      }
+    if (iframeRef.current?.requestFullscreen) {
+      iframeRef.current.requestFullscreen();
     }
   };
 
@@ -57,8 +73,6 @@ export function GamePlayer({ game, onClose }: GamePlayerProps) {
         transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
         className="w-full max-w-6xl h-full max-h-[90vh] bg-[#1a1a1a] rounded-2xl shadow-[0_0_50px_rgba(139,92,246,0.2)] border border-white/10 flex flex-col overflow-hidden"
       >
-        
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#111] border-b border-white/5">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-bold text-white tracking-tight">{game.title}</h2>
@@ -66,7 +80,6 @@ export function GamePlayer({ game, onClose }: GamePlayerProps) {
               {t(`cat.${game.category.toLowerCase().replace(' ', '')}`)}
             </span>
           </div>
-          
           <div className="flex items-center gap-2">
             {!isNative && (
               <>
@@ -99,7 +112,6 @@ export function GamePlayer({ game, onClose }: GamePlayerProps) {
           </div>
         </div>
 
-        {/* Game Container */}
         <div className="flex-1 bg-black relative flex items-center justify-center overflow-hidden">
           {isNative ? (
             renderNativeGame()
@@ -118,7 +130,6 @@ export function GamePlayer({ game, onClose }: GamePlayerProps) {
                   </motion.div>
                 )}
               </AnimatePresence>
-              
               <iframe
                 ref={iframeRef}
                 src={game.embedUrl}

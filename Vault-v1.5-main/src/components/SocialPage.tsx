@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { socialApi, chatApi, ChatMessage, FriendshipRow, UserProfile } from '../api/client';
+import { socialApi, chatApi, profileApi, ChatMessage, FriendshipRow, UserProfile } from '../api/client';
 import { useGameContext } from '../context/GameContext';
-import { Send, Search, UserPlus, Check, X, MessageCircle, Globe, Users, ChevronLeft, UserCheck } from 'lucide-react';
+import { Send, Search, UserPlus, Check, X, MessageCircle, Globe, Users, ChevronLeft, UserCheck, Flame, Coins, Trophy, Gamepad2 } from 'lucide-react';
 
 type SocialTab = 'global' | 'friends' | 'find';
 
@@ -22,7 +22,7 @@ function formatTime(iso: string) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function GlobalChat({ myUserId }: { myUserId: number }) {
+function GlobalChat({ myUserId, onViewProfile }: { myUserId: number; onViewProfile: (id: number) => void }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -73,14 +73,21 @@ function GlobalChat({ myUserId }: { myUserId: number }) {
           const isMe = msg.user_id === myUserId;
           return (
             <div key={msg.id} className={`flex gap-2.5 ${isMe ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${isMe ? 'bg-violet-600/40 text-violet-200' : 'bg-white/10 text-gray-300'}`}>
+              <button
+                onClick={() => msg.user_id && !isMe && onViewProfile(msg.user_id)}
+                className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold transition-opacity ${isMe ? 'bg-violet-600/40 text-violet-200 cursor-default' : 'bg-white/10 text-gray-300 hover:opacity-70 cursor-pointer'}`}
+              >
                 {(msg.username || '?').charAt(0).toUpperCase()}
-              </div>
+              </button>
               <div className={`max-w-[75%] ${isMe ? 'items-end' : 'items-start'} flex flex-col gap-0.5`}>
                 {!isMe && (
-                  <span className="text-xs font-semibold" style={{ color: msg.name_color || '#a78bfa' }}>
+                  <button
+                    onClick={() => msg.user_id && onViewProfile(msg.user_id)}
+                    className="text-xs font-semibold hover:underline text-left"
+                    style={{ color: msg.name_color || '#a78bfa' }}
+                  >
                     {msg.username}
-                  </span>
+                  </button>
                 )}
                 <div className={`px-3 py-2 rounded-2xl text-sm break-words ${isMe ? 'bg-violet-600 text-white rounded-tr-sm' : 'bg-white/10 text-gray-100 rounded-tl-sm'}`}>
                   {msg.message}
@@ -208,7 +215,7 @@ function DMChat({ friend, myUserId, onBack }: { friend: FriendshipRow; myUserId:
   );
 }
 
-function FriendsTab({ myUserId }: { myUserId: number }) {
+function FriendsTab({ myUserId, onViewProfile }: { myUserId: number; onViewProfile: (id: number) => void }) {
   const [friendships, setFriendships] = useState<FriendshipRow[]>([]);
   const [activeDM, setActiveDM] = useState<FriendshipRow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -302,11 +309,13 @@ function FriendsTab({ myUserId }: { myUserId: number }) {
           <div className="space-y-2">
             {accepted.map(f => (
               <div key={f.friendship_id} className="flex items-center gap-3 bg-white/5 hover:bg-white/8 rounded-xl p-3 transition-colors group">
-                <Avatar user={{ username: f.friend_username, friend_pic: f.friend_pic }} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate" style={{ color: f.friend_color || '#fff' }}>{f.friend_username}</p>
+                <button onClick={() => onViewProfile(f.friend_id)} className="flex-shrink-0 hover:opacity-75 transition-opacity">
+                  <Avatar user={{ username: f.friend_username, friend_pic: f.friend_pic }} />
+                </button>
+                <button onClick={() => onViewProfile(f.friend_id)} className="flex-1 min-w-0 text-left">
+                  <p className="font-semibold text-sm truncate hover:underline" style={{ color: f.friend_color || '#fff' }}>{f.friend_username}</p>
                   <p className="text-xs text-gray-500">Lv.{f.friend_level}</p>
-                </div>
+                </button>
                 <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => setActiveDM(f)} className="p-1.5 bg-violet-600/30 hover:bg-violet-600/50 text-violet-400 rounded-lg transition-colors">
                     <MessageCircle className="w-4 h-4" />
@@ -324,7 +333,7 @@ function FriendsTab({ myUserId }: { myUserId: number }) {
   );
 }
 
-function FindPeopleTab({ myUserId }: { myUserId: number }) {
+function FindPeopleTab({ myUserId, onViewProfile }: { myUserId: number; onViewProfile: (id: number) => void }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserProfile[]>([]);
   const [searching, setSearching] = useState(false);
@@ -389,11 +398,13 @@ function FindPeopleTab({ myUserId }: { myUserId: number }) {
           const isPending = rel?.status === 'pending' || alreadySent;
           return (
             <div key={user.id} className="flex items-center gap-3 bg-white/5 rounded-xl p-3">
-              <Avatar user={user} />
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate" style={{ color: (user as any).name_color || '#fff' }}>{user.username}</p>
+              <button onClick={() => onViewProfile(user.id)} className="flex-shrink-0 hover:opacity-75 transition-opacity">
+                <Avatar user={user} />
+              </button>
+              <button onClick={() => onViewProfile(user.id)} className="flex-1 min-w-0 text-left">
+                <p className="font-semibold text-sm truncate hover:underline" style={{ color: (user as any).name_color || '#fff' }}>{user.username}</p>
                 <p className="text-xs text-gray-500">Lv.{(user as any).level || 1}</p>
-              </div>
+              </button>
               {isAccepted ? (
                 <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
                   <UserCheck className="w-4 h-4" />
@@ -426,8 +437,143 @@ function FindPeopleTab({ myUserId }: { myUserId: number }) {
   );
 }
 
+function UserProfileModal({ userId, myUserId, onClose }: { userId: number; myUserId: number; onClose: () => void }) {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [friendships, setFriendships] = useState<FriendshipRow[]>([]);
+  const [actionDone, setActionDone] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      profileApi.getPublicProfile(userId),
+      socialApi.getFriends(),
+    ]).then(([{ user }, { friendships }]) => {
+      setUser(user);
+      setFriendships(friendships);
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, [userId]);
+
+  const relationship = friendships.find(f => f.friend_id === userId);
+  const isAccepted = relationship?.status === 'accepted';
+  const isPending = relationship?.status === 'pending';
+
+  const handleAddFriend = async () => {
+    try {
+      await socialApi.sendRequest(userId);
+      setActionDone(true);
+    } catch {}
+  };
+
+  const progress = (user?.progress_json || {}) as Record<string, number | string[]>;
+  const totalGames = (progress.totalGamesPlayed as number) || 0;
+  const unlocked = ((progress.unlockedAchievements as string[]) || []).length;
+  const prestige = (progress.prestige as number) || 0;
+  const banner = user?.profile_banner || 'bg-gradient-to-r from-blue-500 to-purple-600';
+  const isBannerClass = banner.startsWith('bg-');
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 16 }}
+        className="bg-[#1a1a1a] rounded-2xl border border-white/10 w-full max-w-sm overflow-hidden shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        {loading ? (
+          <div className="flex items-center justify-center p-12 text-gray-500 text-sm">Loading…</div>
+        ) : !user ? (
+          <div className="flex items-center justify-center p-12 text-gray-500 text-sm">User not found.</div>
+        ) : (
+          <>
+            <div className={`h-24 relative ${isBannerClass ? banner : ''}`} style={!isBannerClass ? { background: banner } : {}}>
+              <button onClick={onClose} className="absolute top-3 right-3 p-1.5 bg-black/40 hover:bg-black/60 rounded-full text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+              <div className="absolute -bottom-8 left-4">
+                <div className="w-16 h-16 rounded-full border-4 border-[#1a1a1a] overflow-hidden bg-violet-600/40 flex items-center justify-center">
+                  {user.profile_pic_url ? (
+                    <img src={user.profile_pic_url} alt={user.username} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl font-bold text-violet-200">{user.username.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-10 px-4 pb-4">
+              <div className="flex items-start justify-between mb-1">
+                <div>
+                  <p className="font-bold text-lg" style={{ color: user.name_color || '#fff' }}>
+                    {user.username}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {user.is_owner ? '👑 Owner' : user.is_admin ? '⚡ Admin' : `Level ${user.level}${prestige > 0 ? ` · Prestige ${prestige}` : ''}`}
+                  </p>
+                </div>
+                {userId !== myUserId && (
+                  isAccepted ? (
+                    <span className="flex items-center gap-1 text-xs text-emerald-400 font-medium"><UserCheck className="w-4 h-4" /> Friends</span>
+                  ) : isPending || actionDone ? (
+                    <span className="text-xs text-gray-500 font-medium">Pending</span>
+                  ) : (
+                    <button onClick={handleAddFriend} className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-600/30 hover:bg-violet-600/50 text-violet-300 text-xs font-medium rounded-lg transition-colors">
+                      <UserPlus className="w-3.5 h-3.5" /> Add Friend
+                    </button>
+                  )
+                )}
+              </div>
+
+              {user.bio && (
+                <p className="text-gray-400 text-sm mb-3 leading-relaxed">{user.bio}</p>
+              )}
+
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                <div className="bg-white/5 rounded-xl p-3 flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-gray-500">Streak</p>
+                    <p className="text-white font-bold text-sm">{user.streak} days</p>
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 flex items-center gap-2">
+                  <Gamepad2 className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-gray-500">Games Played</p>
+                    <p className="text-white font-bold text-sm">{totalGames}</p>
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-gray-500">Achievements</p>
+                    <p className="text-white font-bold text-sm">{unlocked}</p>
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 flex items-center gap-2">
+                  <div className="w-4 h-4 text-yellow-300 flex-shrink-0 font-bold text-center text-xs leading-4">🪙</div>
+                  <div>
+                    <p className="text-xs text-gray-500">Coins</p>
+                    <p className="text-white font-bold text-sm">{user.coins.toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-gray-600 text-center mt-3">
+                Member since {new Date(user.created_at).toLocaleDateString()}
+              </p>
+            </div>
+          </>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 export function SocialPage() {
   const [tab, setTab] = useState<SocialTab>('global');
+  const [viewUserId, setViewUserId] = useState<number | null>(null);
   const { currentUser, state } = useGameContext();
 
   if (state.authMode !== 'logged_in' || !currentUser) {
@@ -490,22 +636,32 @@ export function SocialPage() {
           <AnimatePresence mode="wait">
             {tab === 'global' && (
               <motion.div key="global" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col min-h-0">
-                <GlobalChat myUserId={currentUser.id} />
+                <GlobalChat myUserId={currentUser.id} onViewProfile={setViewUserId} />
               </motion.div>
             )}
             {tab === 'friends' && (
               <motion.div key="friends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col min-h-0">
-                <FriendsTab myUserId={currentUser.id} />
+                <FriendsTab myUserId={currentUser.id} onViewProfile={setViewUserId} />
               </motion.div>
             )}
             {tab === 'find' && (
               <motion.div key="find" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col min-h-0">
-                <FindPeopleTab myUserId={currentUser.id} />
+                <FindPeopleTab myUserId={currentUser.id} onViewProfile={setViewUserId} />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
+
+      <AnimatePresence>
+        {viewUserId !== null && (
+          <UserProfileModal
+            userId={viewUserId}
+            myUserId={currentUser.id}
+            onClose={() => setViewUserId(null)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

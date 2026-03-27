@@ -107,4 +107,21 @@ router.put('/request/:id', requireAuth, async (req: AuthRequest, res: Response) 
   }
 });
 
+router.get('/profile/:userId', requireAuth, async (req: AuthRequest, res: Response) => {
+  const { userId } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT id, username, profile_pic_url, profile_banner, bio, name_color, level, xp, streak,
+              coins, is_admin, is_owner, created_at, progress_json
+       FROM users WHERE id = $1`,
+      [userId]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'User not found' });
+    return res.json({ user: result.rows[0] });
+  } catch (err) {
+    console.error('Profile fetch error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 export default router;
